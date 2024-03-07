@@ -204,4 +204,3 @@ class PyOSRM:
     #         for step in leg['steps']:
     #             for intersection in step['intersections']:
     #                 trip_points.append(intersection['location'])
-
