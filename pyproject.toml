@@ -5,6 +5,14 @@ description = "A toolkit with python wrappers to interact with an OSRM API machi
 authors = ["Nick Fournier <nick.fournier@rsginc.com>"]
 license = "GPLv3"
 readme = "README.md"
+packages = [
+    { include = "pyosrm", from = "src" },
+]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "src"
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -12,7 +20,11 @@ pandas = "^2.2.1"
 sphinx = "^7.2.6"
 sphinx-rtd-theme = "^2.0.0"
 geopandas = "^0.14.3"
+pytest = "^8.0.2"
 
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.2"
 
 [build-system]
 requires = ["poetry-core"]

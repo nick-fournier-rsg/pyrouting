@@ -2,8 +2,7 @@
 This module provides a Python interface to the Open Source Routing Machine (OSRM) API.
 """
 import requests
-# import pandas as pd
-# import geopandas as gpd
+from pyosrm import utils
 
 
 class PyOSRM:
@@ -28,6 +27,7 @@ class PyOSRM:
     def table(self,
               coordinates: list[tuple],
               mode: str = 'driving',
+              annotations: str = 'duration',
               sources: list[int] | None = None,
               destinations: list[int] | None = None
               ) -> dict:
@@ -46,17 +46,31 @@ class PyOSRM:
         assert mode in ['driving', 'walking', 'cycling'], \
             'mode must be one of "driving", "walking", or "cycling"'
 
+        # Annotations must be either duration, distance, or duration and distance
+        assert annotations in ['duration', 'distance'], \
+            'annotations must be one of "duration", "distance"'
+
         # Construct the URL
         url = f'{self.host}:{self.port}/table/v1/{mode}/'
         url += ';'.join([f'{c[1]},{c[0]}' for c in coordinates])
 
+        # Create empty options list
+        options = []
         if isinstance(sources, list):
-            sources = ';'.join([str(s) for s in sources])  # type: ignore
-            url += f'?sources={sources}'
+            sources_str = ';'.join([str(s) for s in sources])  # type: ignore
+            options.append(f'sources={sources_str}')
 
         if isinstance(sources, list):
-            destinations = ';'.join([str(d) for d in destinations])  # type: ignore
-            url += f'&destinations={destinations}'
+            destinations_str = ';'.join([str(d) for d in destinations])  # type: ignore
+            options.append(f'&destinations={destinations_str}')
+
+        if isinstance(annotations, list):
+            options.append(f'annotations={annotations}')
+
+        # Concatenate the options strings with & in between
+        if len(options) > 0:
+            options_str = '&'.join(options)
+            url += f'?{options_str}'
 
         response = requests.get(url, timeout=10)
         return response.json()
@@ -64,13 +78,14 @@ class PyOSRM:
     def match(self,
               coordinates: list[tuple],
               mode: str = 'driving',
-              timestamps: list[int] | None = None,
+              timestamps: list[int] | list[str] | None = None,
               geometries: str = 'polyline',
               annotations: str = 'false',
               radiuses: list[int] | None = None,
               gaps: bool = False,
               steps: bool = False,
-              waypoints: list[int] | None = None
+              waypoints: list[int] | None = None,
+              dt_format: str = '%Y-%m-%d %H:%M:%S%z'
               ):
         """
         This function matches supplied coordinates to the road network and returns
@@ -90,6 +105,8 @@ class PyOSRM:
             gaps (bool, optional): Allows the input track modification to obtain a better match
                 for noisy traces.
             waypoints (list, optional): Selected input coordinates as waypoints.
+            dt_format (str, optional): The format of the timestamps if not integer seconds.
+                Default is '%Y-%m-%d %H:%M:%S%z'.
 
         Returns:
             json dict: A JSON dictionary containing the matched coordinates and metadata.
@@ -101,23 +118,43 @@ class PyOSRM:
         url = f'{self.host}:{self.port}/match/v1/{mode}/'
         url += ';'.join([f'{c[1]},{c[0]}' for c in coordinates])
 
+        # Create empty options list
+        options = []
         if isinstance(timestamps, list):
-            timestamps = ';'.join([str(t) for t in timestamps])  # type: ignore
-            url += f'?timestamps={timestamps}'
+            # If timestamp is a string, convert to a list of integers
+            timestamps = [utils.parse_datetime_to_int(t, dt_format) for t in timestamps]
+            timestamps_str = ';'.join([str(t) for t in timestamps])  # type: ignore
+            options.append(f'timestamps={timestamps_str}')
 
         if isinstance(radiuses, list):
-            radiuses = ';'.join([str(r) for r in radiuses])  # type: ignore
-            url += f'?radiuses={radiuses}'
+            radiuses_str = ';'.join([str(r) for r in radiuses])  # type: ignore
+            options.append(f'radiuses={radiuses_str}')
 
         if isinstance(waypoints, list):
-            waypoints = ';'.join([str(w) for w in waypoints])  # type: ignore
-            url += f'?waypoints={waypoints}'
+            waypoints_str = ';'.join([str(w) for w in waypoints])  # type: ignore
+            options.append(f'waypoints={waypoints_str}')
 
-        # Add geometries
-        url += f'?geometries={geometries}'
-        url += f'&annotations={annotations}'
-        url += f'&gaps={gaps}'
-        url += f'&steps={steps}'
+        # Add the options to the URL
+        # for opt in ['steps', 'gaps', 'annotations', 'geometries']:
+        #     if locals()[opt]:
+        #         options.append(f'{opt}={locals()[opt]}')
+
+        if steps:
+            options.append('steps=true')
+
+        if gaps:
+            options.append('gaps=true')
+
+        if annotations:
+            options.append(f'annotations={annotations}')
+
+        if geometries:
+            options.append(f'geometries={geometries}')
+
+        # Concatenate the options strings with & in between
+        if len(options) > 0:
+            options_str = '&'.join(options)
+            url += f'?{options_str}'
 
         response = requests.get(url, timeout=10)
         return response.json()
@@ -155,21 +192,36 @@ class PyOSRM:
         url = f'{self.host}:{self.port}/route/v1/{mode}/'
         url += ';'.join([f'{c[1]},{c[0]}' for c in coordinates])
 
-        if steps:
-            url += '?steps=true'
-
-        if alternatives > 1:
-            url += f'?alternatives={alternatives}'
+        # Create empty options list
+        options = []
 
         if isinstance(waypoints, list):
-            waypoints = ';'.join([str(w) for w in waypoints])  # type: ignore
-            url += f'?waypoints={waypoints}'
+            waypoints_str = ';'.join([str(w) for w in waypoints])  # type: ignore
+            options.append(f'waypoints={waypoints_str}')
+
+        # for opt in ['steps', 'alternatives', 'continue_straight', 'annotations', 'geometries']:
+        #     if locals()[opt]:
+        #         options.append(f'{opt}={locals()[opt]}')
+
+        if steps:
+            options.append('steps=true')
+
+        if alternatives:
+            options.append(f'alternatives={alternatives}')
 
         if continue_straight:
-            url += '?continue_straight=true'
+            options.append(f'continue_straight={continue_straight}')
 
-        url += f'?geometries={geometries}'
-        url += f'&annotations={annotations}'
+        if annotations:
+            options.append(f'annotations={annotations}')
+
+        if geometries:
+            options.append(f'geometries={geometries}')
+
+        # Concatenate the options strings with & in between
+        if len(options) > 0:
+            options_str = '&'.join(options)
+            url += f'?{options_str}'
 
         response = requests.get(url, timeout=10)
         return response.json()
