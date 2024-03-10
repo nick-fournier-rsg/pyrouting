@@ -1,4 +1,4 @@
-PyOSRM
+pyosrm
 ======
 
 .. toctree::

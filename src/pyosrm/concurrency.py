@@ -11,19 +11,6 @@ from tqdm.asyncio import tqdm_asyncio
 class ConcurrentRequests:
     """
     This class is used to make concurrent requests to the OSRM server.
-
-    Initialize the ConcurrentRequests object
-    Concur = ConcurrentRequests(parallel_requests: int = 100, **kwargs)
-
-    Open a TCP connector to the OSRM server
-    Concur.open_connector()
-
-    Make concurrent GET requests to the OSRM server
-    results = Concur.get(urls: list[str])
-
-    Close the connection to the OSRM server
-    Concur.close_connector()
-
     """
     connector: aiohttp.TCPConnector
 

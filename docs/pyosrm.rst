@@ -1,13 +1,37 @@
-PyOSRM Package
+pyosrm package
 ==============
 
 Submodules
 ----------
 
-pyosrm.api module
+pyosrm.bulk module
 ------------------
 
-.. automodule:: pyosrm.api
+.. automodule:: pyosrm.bulk
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyosrm.concurrency module
+-------------------------
+
+.. automodule:: pyosrm.concurrency
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyosrm.main module
+------------------
+
+.. automodule:: pyosrm.main
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyosrm.query module
+-------------------
+
+.. automodule:: pyosrm.query
    :members:
    :undoc-members:
    :show-inheritance:

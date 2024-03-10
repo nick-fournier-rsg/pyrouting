@@ -1,3 +1,7 @@
+# sphinx build folder
+_build\
+
+# Ignore data
 *.csv
 
 # Byte-compiled / optimized / DLL files

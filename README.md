@@ -43,9 +43,9 @@ done
 To run the servers simultaneously, you have to spin up separate instances with different ports. You can run them on the same machine you can send them to the background with '&'. So to run all three profiles, the commands would be:
 
 ```bash ./run_servers.sh
-docker run -t -i -p 5000:5000 -v "${PWD}:/data/car" ghcr.io/project-osrm/osrm-backend osrm-routed --algorithm mld /data/car/us-west-latest.osrm &
-docker run -t -i -p 5001:5001 -v "${PWD}:/data/bike" ghcr.io/project-osrm/osrm-backend osrm-routed --algorithm mld /data/bike/us-west-latest.osrm &
-docker run -t -i -p 5002:5002 -v "${PWD}:/data/foot" ghcr.io/project-osrm/osrm-backend osrm-routed --algorithm mld /data/foot/us-west-latest.osrm &
+docker run -t -i -p 5000:5000 -v "${PWD}/car:/data/car" ghcr.io/project-osrm/osrm-backend osrm-routed --algorithm mld /data/car/us-west-latest.osrm &
+docker run -t -i -p 5001:5001 -v "${PWD}/bike:/data/bike" ghcr.io/project-osrm/osrm-backend osrm-routed --algorithm mld /data/bike/us-west-latest.osrm &
+docker run -t -i -p 5002:5002 -v "${PWD}/foot:/data/foot" ghcr.io/project-osrm/osrm-backend osrm-routed --algorithm mld /data/foot/us-west-latest.osrm &
 ```
 
 Alternatively you could use the `screen` command to run the servers in separate screens manually. From there a proxy can be used to route requests to the correct port based on the profile.
