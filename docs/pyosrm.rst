@@ -4,10 +4,10 @@ PyOSRM Package
 Submodules
 ----------
 
-pyosrm.main module
+pyosrm.api module
 ------------------
 
-.. automodule:: pyosrm.main
+.. automodule:: pyosrm.api
    :members:
    :undoc-members:
    :show-inheritance:
