@@ -14,13 +14,12 @@ fi
 for profile in "car" "bicycle" "foot"
 do
     mkdir -p ${profile}
+    cd ~/osrm
 
     # Copy the OSM file to the profile folder
-    cp ./data/${osm_area}.osm.pbf ./${profile}/${osm_area}.osm.pbf
+    cp data/${osm_area}.osm.pbf ${profile}/${osm_area}.osm.pbf
 
-    # Not working? Rather than copy the large file, just make a symbolic link for osrm to extract into a new folder.
-    # ln -s data/${osm_area}.osm.pbf ${profile}/${osm_area}.osm.pbf
-
+    # Run the osrm-backend
     docker run -t -v "${PWD}/${profile}:/data/${profile}" ghcr.io/project-osrm/osrm-backend osrm-extract -p /opt/${profile}.lua /data/${profile}/${osm_area}.osm.pbf || echo "osrm-extract failed"
     docker run -t -v "${PWD}/${profile}:/data/${profile}" ghcr.io/project-osrm/osrm-backend osrm-partition /data/${profile}/${osm_area}.osrm || echo "osrm-partition failed"
     docker run -t -v "${PWD}/${profile}:/data/${profile}" ghcr.io/project-osrm/osrm-backend osrm-customize /data/${profile}/${osm_area}.osrm || echo "osrm-customize failed"
