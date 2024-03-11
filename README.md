@@ -44,8 +44,7 @@ You may run it with the following commands:
 sudo ./build.sh         # run the script
 ```
 
-https://github.com/nick-fournier-rsg/pyosrm/blob/cbf139c32ed005f7cf42c5a5e07c813202a29cbb/scripts/build.sh
-
+https://github.com/nick-fournier-rsg/pyosrm/blob/922bb5f29b823a1f4a652c560a4fc134a41d0fb9/scripts/build.sh#L1-L22
 
 ## 2. Prepare OSRM data
 
@@ -60,7 +59,7 @@ To run multiple profiles, you have to run separate OSRM servers with separately 
 
 Edit the `osm_region` and `osm_area` variables to match the region and area you want in this helper script:
 
-https://github.com/nick-fournier-rsg/pyosrm/blob/cbf139c32ed005f7cf42c5a5e07c813202a29cbb/scripts/docker_prepare.sh
+https://github.com/nick-fournier-rsg/pyosrm/blob/922bb5f29b823a1f4a652c560a4fc134a41d0fb9/scripts/docker_prepare.sh#L1-L27
 
 It will download the OSM file from [Geofabrik](https://download.geofabrik.de/) if it doesn't exist, then runs the osrm-extract, osrm-partition, and osrm-customize commands. It will place the extracted files into a separate directory named after the profile.
 
@@ -69,8 +68,7 @@ It will download the OSM file from [Geofabrik](https://download.geofabrik.de/) i
 
 #### Compiled osrm-backend option
 
-https://github.com/nick-fournier-rsg/pyosrm/blob/cbf139c32ed005f7cf42c5a5e07c813202a29cbb/scripts/prepare.sh
-
+https://github.com/nick-fournier-rsg/pyosrm/blob/922bb5f29b823a1f4a652c560a4fc134a41d0fb9/scripts/prepare.sh#L1-L27
 
 ## 3. Run servers
 
@@ -81,8 +79,7 @@ sudo osrm-routed --port 5000:5000 --algorithm mld /path/to/profile.osrm
 
 A seperate server must be started for each profile running on a different port. You can do this manually with `screen`, or in a one-liner you can send them to the background with '&'. The `docker_run.sh` script will start the servers for each profile.
 
-https://github.com/nick-fournier-rsg/pyosrm/blob/cbf139c32ed005f7cf42c5a5e07c813202a29cbb/scripts/docker_run.sh
-
+https://github.com/nick-fournier-rsg/pyosrm/blob/922bb5f29b823a1f4a652c560a4fc134a41d0fb9/scripts/docker_run.sh
 
 ## 4. Nginx
 To route requests to the correct profile, you can use a reverse proxy like nginx.
