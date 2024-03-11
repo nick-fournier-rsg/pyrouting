@@ -79,7 +79,11 @@ sudo osrm-routed --port 5000:5000 --algorithm mld /path/to/profile.osrm
 
 A seperate server must be started for each profile running on a different port. You can do this manually with `screen`, or in a one-liner you can send them to the background with '&'. The `docker_run.sh` script will start the servers for each profile.
 
-https://github.com/nick-fournier-rsg/pyosrm/blob/922bb5f29b823a1f4a652c560a4fc134a41d0fb9/scripts/docker_run.sh
+https://github.com/nick-fournier-rsg/pyosrm/blob/922bb5f29b823a1f4a652c560a4fc134a41d0fb9/scripts/docker_run.sh#L1-L5
+
+#### Compiled osrm-backend option
+https://github.com/nick-fournier-rsg/pyosrm/blob/922bb5f29b823a1f4a652c560a4fc134a41d0fb9/scripts/run.sh#L1-L5
+
 
 ## 4. Nginx
 To route requests to the correct profile, you can use a reverse proxy like nginx.
@@ -116,6 +120,12 @@ server {
         }
 }
 
+```
+
+Then test and restart nginx if OK:
+```bash
+sudo nginx -t
+sudo systemctl restart nginx
 ```
 
 I haven't tested this yet but it should work? The nginx configuration is from the OSRM documentation:
