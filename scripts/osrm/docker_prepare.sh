@@ -21,8 +21,8 @@ do
     cp data/${osm_area}.osm.pbf data/${profile}/${osm_area}.osm.pbf
 
     # Run the osrm-backend
-    docker run -t -v "${PWD}/${profile}:/data/${profile}" ghcr.io/project-osrm/osrm-backend osrm-extract -p /opt/${profile}.lua /data/${profile}/${osm_area}.osm.pbf || echo "osrm-extract failed"
-    docker run -t -v "${PWD}/${profile}:/data/${profile}" ghcr.io/project-osrm/osrm-backend osrm-partition /data/${profile}/${osm_area}.osrm || echo "osrm-partition failed"
-    docker run -t -v "${PWD}/${profile}:/data/${profile}" ghcr.io/project-osrm/osrm-backend osrm-customize /data/${profile}/${osm_area}.osrm || echo "osrm-customize failed"
+    docker run -t -v "${PWD}/data/${profile}:/data/${profile}" ghcr.io/project-osrm/osrm-backend osrm-extract -p /opt/${profile}.lua /data/${profile}/${osm_area}.osm.pbf || echo "osrm-extract failed"
+    docker run -t -v "${PWD}/data/${profile}:/data/${profile}" ghcr.io/project-osrm/osrm-backend osrm-partition /data/${profile}/${osm_area}.osrm || echo "osrm-partition failed"
+    docker run -t -v "${PWD}/data/${profile}:/data/${profile}" ghcr.io/project-osrm/osrm-backend osrm-customize /data/${profile}/${osm_area}.osrm || echo "osrm-customize failed"
 
 done
