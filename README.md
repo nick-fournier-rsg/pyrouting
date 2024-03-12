@@ -44,7 +44,7 @@ You may run it with the following commands:
 sudo ./build.sh         # run the script
 ```
 
-https://github.com/nick-fournier-rsg/pyosrm/blob/922bb5f29b823a1f4a652c560a4fc134a41d0fb9/scripts/osrm/build.sh#L1-L22
+https://github.com/nick-fournier-rsg/pyrouting/blob/4dedb7ea87373ffe1e5f062af0e6391d9f5aa4ab/scripts/osrm/build.sh#L1-L22
 
 ## 2. Prepare OSRM data
 
@@ -59,7 +59,7 @@ To run multiple profiles, you have to run separate OSRM servers with separately 
 
 Edit the `osm_region` and `osm_area` variables to match the region and area you want in this helper script:
 
-https://github.com/nick-fournier-rsg/pyosrm/blob/922bb5f29b823a1f4a652c560a4fc134a41d0fb9/scripts/osrm/docker_prepare.sh#L1-L27
+https://github.com/nick-fournier-rsg/pyrouting/blob/4dedb7ea87373ffe1e5f062af0e6391d9f5aa4ab/scripts/osrm/docker_prepare.sh#L1-L28
 
 It will download the OSM file from [Geofabrik](https://download.geofabrik.de/) if it doesn't exist, then runs the osrm-extract, osrm-partition, and osrm-customize commands. It will place the extracted files into a separate directory named after the profile.
 
@@ -68,21 +68,21 @@ It will download the OSM file from [Geofabrik](https://download.geofabrik.de/) i
 
 #### Compiled osrm-backend option
 
-https://github.com/nick-fournier-rsg/pyosrm/blob/922bb5f29b823a1f4a652c560a4fc134a41d0fb9/scripts/osrm/prepare.sh#L1-L27
+https://github.com/nick-fournier-rsg/pyrouting/blob/4dedb7ea87373ffe1e5f062af0e6391d9f5aa4ab/scripts/osrm/prepare.sh#L1-L38
 
 ## 3. Run servers
 
-Once all the profiles have been prepared, an OSRM backend routing server can be started for each profile. e.g., 
+Once all the profiles have been prepared, an OSRM backend routing server can be started for each profile. e.g.,
 ```bash
 sudo osrm-routed --port 5000:5000 --algorithm mld /path/to/profile.osrm
 ```
 
 A seperate server must be started for each profile running on a different port. You can do this manually with `screen`, or in a one-liner you can send them to the background with '&'. The `docker_run.sh` script will start the servers for each profile.
 
-https://github.com/nick-fournier-rsg/pyosrm/blob/922bb5f29b823a1f4a652c560a4fc134a41d0fb9/scripts/osrm/docker_run.sh#L1-L5
+https://github.com/nick-fournier-rsg/pyrouting/blob/4dedb7ea87373ffe1e5f062af0e6391d9f5aa4ab/scripts/osrm/docker_run.sh#L1-L5
 
 #### Compiled osrm-backend option
-https://github.com/nick-fournier-rsg/pyosrm/blob/922bb5f29b823a1f4a652c560a4fc134a41d0fb9/scripts/osrm/run.sh#L1-L5
+https://github.com/nick-fournier-rsg/pyrouting/blob/4dedb7ea87373ffe1e5f062af0e6391d9f5aa4ab/scripts/osrm/run.sh#L1-L5
 
 
 ## 4. Nginx
