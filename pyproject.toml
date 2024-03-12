@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "pyosrm"
+name = "pyrouting"
 version = "0.1.0"
-description = "A toolkit with python wrappers to interact with an OSRM API machine."
+description = "A toolkit with python wrappers to interact with an routing APIs such as OSRM."
 authors = ["Nick Fournier <nick.fournier@rsginc.com>"]
 license = "GPLv3"
 readme = "README.md"
 packages = [
-    { include = "pyosrm", from = "src" },
+    { include = "pyrouting", from = "src" },
 ]
 
 [tool.pytest.ini_options]

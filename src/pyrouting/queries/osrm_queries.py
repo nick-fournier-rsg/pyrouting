@@ -1,10 +1,10 @@
 """
 This module provides a Python interface to the Open Source Routing Machine (OSRM) API.
 """
-from pyosrm.utils import parse_datetime_to_int
+from ..utils.misc import parse_datetime_to_int
 
 
-class URLQueries:
+class OSRMQueries:
     """
     This class provides methods for constructing URLs for the OSRM API services.
     """
@@ -13,6 +13,7 @@ class URLQueries:
     def url_constructor(
         host: str,
         port: int,
+        service: str,
         mode: str,
         coordinates: list[tuple],
         list_args: dict[str, list],
@@ -33,7 +34,7 @@ class URLQueries:
         kwargs = {**list_args, **option_args}
 
         # Construct the URL
-        url = f'{host}:{port}/table/v1/{mode}/'
+        url = f'{host}:{port}/{service}/v1/{mode}/'
         url += ';'.join([f'{c[1]},{c[0]}' for c in coordinates])
 
         # Create empty options list
@@ -41,10 +42,10 @@ class URLQueries:
 
         # Stringify the kwargs
         for k, v in kwargs.items():
-            if not v:
+            if v is None:
                 continue
 
-            if isinstance(v, list):
+            if hasattr(v, '__iter__') and not isinstance(v, str):
                 _str = ';'.join([str(i) for i in v])
 
             elif isinstance(v, str | int | float | bool):
@@ -98,6 +99,7 @@ class URLQueries:
         # Required keyword arguments
         host = kwargs['host']
         port = kwargs['port']
+        service = 'table'
 
         assert mode in ['driving', 'walking', 'cycling'], \
             'mode must be one of "driving", "walking", or "cycling"'
@@ -112,7 +114,9 @@ class URLQueries:
         # Option args
         option_args = {'annotations': kwargs['annotations']}
 
-        return URLQueries.url_constructor(host, port, mode, coordinates, list_args, option_args)
+        return OSRMQueries.url_constructor(
+            host, port, service, mode, coordinates, list_args, option_args
+        )
 
     @staticmethod
     def match_url(
@@ -151,12 +155,12 @@ class URLQueries:
         # Set default kwargs
         defaults = {
             'geometries': 'polyline',
-            'annotations': 'false',
+            'annotations': 'true',
             'radiuses': None,
             'waypoints': None,
-            'gaps': False,
-            'tidy': False,
-            'steps': False,
+            'gaps': None,
+            'tidy': None,
+            'steps': None,
             'dt_format': '%Y-%m-%d %H:%M:%S%z'
         }
 
@@ -166,6 +170,7 @@ class URLQueries:
         # Required keyword arguments
         host = kwargs['host']
         port = kwargs['port']
+        service = 'match'
 
         assert mode in ['driving', 'walking', 'cycling'], \
             'mode must be one of "driving", "walking", or "cycling"'
@@ -194,7 +199,9 @@ class URLQueries:
         }
 
         # Construct base URL
-        return URLQueries.url_constructor(host, port, mode, coordinates, list_args, option_args)
+        return OSRMQueries.url_constructor(
+            host, port, service, mode, coordinates, list_args, option_args
+        )
 
     @staticmethod
     def route_url(
@@ -231,7 +238,7 @@ class URLQueries:
             'steps': False,
             'alternatives': None,
             'continue_straight': False,
-            'annotations': 'duration',
+            'annotations': True,
             'waypoints': None
         }
         for key, value in defaults.items():
@@ -240,6 +247,7 @@ class URLQueries:
         # Required keyword arguments
         host = kwargs['host']
         port = kwargs['port']
+        service = 'route'
 
         # List args
         list_args = {'waypoints': kwargs['waypoints']}
@@ -253,4 +261,6 @@ class URLQueries:
             'annotations': kwargs['annotations']
         }
 
-        return URLQueries.url_constructor(host, port, mode, coordinates, list_args, option_args)
+        return OSRMQueries.url_constructor(
+            host, port, service, mode, coordinates, list_args, option_args
+        )

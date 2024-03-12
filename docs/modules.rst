@@ -1,7 +1,7 @@
-pyosrm
-======
+pyrouting
+=========
 
 .. toctree::
    :maxdepth: 4
 
-   pyosrm
+   pyrouting

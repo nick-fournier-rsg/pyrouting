@@ -3,6 +3,8 @@
 osm_region="north-america"
 osm_area="us-west-latest"
 
+cd ~/osrm
+
 if [ -e "./data/${osm_area}.osm.pbf" ]
 then
         echo "./data/${osm_area}.osm.pbf already exists. Skipping download"
@@ -13,11 +15,10 @@ fi
 
 for profile in "car" "bicycle" "foot"
 do
-    mkdir -p ${profile}
-    cd ~/osrm
+    mkdir -p data/${profile}
 
     # Copy the OSM file to the profile folder
-    cp data/${osm_area}.osm.pbf ${profile}/${osm_area}.osm.pbf
+    cp data/${osm_area}.osm.pbf data/${profile}/${osm_area}.osm.pbf
 
     # Run the osrm-backend
     docker run -t -v "${PWD}/${profile}:/data/${profile}" ghcr.io/project-osrm/osrm-backend osrm-extract -p /opt/${profile}.lua /data/${profile}/${osm_area}.osm.pbf || echo "osrm-extract failed"

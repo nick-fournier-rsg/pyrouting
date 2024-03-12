@@ -3,10 +3,10 @@ This module provides a Python interface to the Open Source Routing Machine (OSRM
 """
 
 import requests
-from .bulk import BulkQueries
+from ..processing.osrm_process import ProcessOSRM
 
 
-class PyOSRM(BulkQueries):
+class PyOSRM(ProcessOSRM):
     """
     This class provides a Python interface to the Open Source Routing Machine (OSRM) API.
     """

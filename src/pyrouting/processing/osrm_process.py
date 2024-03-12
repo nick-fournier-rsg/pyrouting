@@ -4,30 +4,25 @@ This module contains higher order functions for processing dataframes of trip da
 import pandas as pd
 import numpy as np
 import requests
-from .query import URLQueries
-from .concurrency import ConcurrentRequests
+from ..queries.osrm_queries import OSRMQueries
+from ..utils.concurrency import ConcurrentRequests
 
 
-class BulkQueries(URLQueries):
+class ProcessOSRM(OSRMQueries):
     """
     This class provides higher order functions for processing dataframes of trip data in bulk.
     """
     host = 'localhost'
     port = 5000
 
+    # TODO: Too many arguments
     def match_df(
         self,
         df: pd.DataFrame,
-        mode: str,
         renames: dict[str, str] | None = None,
         group_col: str | None = None,
-        geometries: str = 'polyline',
-        annotations: str = 'duration',
-        gaps: bool = False,
-        tidy: bool = False,
-        steps: bool = False,
-        dt_format: str = '%Y-%m-%d %H:%M:%S%z'
-    ) -> dict:
+        **kwargs
+    ) -> list:
         """
 
         Map match trip locations points to osrm route from dataframes.
@@ -49,21 +44,38 @@ class BulkQueries(URLQueries):
                 route geometry. One of true, false, nodes, distance, duration, datasources, weight,
                 speed.
             radiuses (list, optional): Search radius in meters for each coordinate.
-            gaps (bool, optional): Allows the input track modification to obtain a better match
-                for noisy traces.
+            gaps (str, optional): Either 'split' or 'ignore' (default). Allows the input track
+                modification to obtain a better match for noisy traces.
             steps (bool, optional): Return route steps for each route leg.
             waypoints (list, optional): Selected input coordinates as waypoints.
             dt_format (str, optional): The format of the timestamps if not integer seconds.
                 Default is '%Y-%m-%d %H:%M:%S%z'.
 
         Returns:
-            json dict: A JSON dictionary containing the matched coordinates and metadata.
+            json list: A JSON list of dictionaries containing the matched coordinates and metadata.
         """
+
+        # Set default kwargs
+        defaults = {
+            'host': self.host,
+            'port': self.port,
+            'mode': 'driving',
+            'geometries': 'polyline',
+            'annotations': 'true',
+            'radiuses': None,
+            'waypoints': None,
+            'gaps': 'ignore',
+            'tidy': None,
+            'steps': None,
+            'dt_format': '%Y-%m-%d %H:%M:%S%z'
+        }
+        for key, value in defaults.items():
+            kwargs.setdefault(key, value)
 
         assert isinstance(df, pd.DataFrame), 'locations_df must be a pandas DataFrame'
 
         # Assert mode is either drive, bicycle, or foot
-        assert mode in ['driving', 'bicycle', 'foot'], \
+        assert kwargs['mode'] in ['driving', 'bicycle', 'foot'], \
             'mode must be "driving", "bicycle", or "foot".'
 
         # Rename the columns
@@ -75,7 +87,10 @@ class BulkQueries(URLQueries):
 
         # If timestamp is a string, convert to integer seconds since UNIX epoch
         if 'timestamp' in df.columns and df['timestamp'].dtype != 'int64':
-            df['timestamp'] = pd.to_datetime(df['timestamp'], format=dt_format).astype('int64')
+            df['timestamp'] = pd.to_datetime(
+                df['timestamp'],
+                format=kwargs['dt_format']
+            ).astype('int64')
             df['timestamp'] //= 10**9
 
         # Extract the columns as numpy arrays
@@ -106,22 +121,17 @@ class BulkQueries(URLQueries):
 
             # Construct a list of urls
             def generate_urls(data):
-                kwargs = {
-                    'host': self.host,
-                    'port': self.port,
-                    'mode': mode,
-                    'geometries': geometries,
-                    'annotations': annotations,
-                    'gaps': gaps,
-                    'tidy': tidy,
-                    'steps': steps,
-                    'dt_format': dt_format,
-                    'coordinates': data[0],
-                    'timestamps': data[1],
-                    'radiuses': data[2],
-                    'waypoints': data[3]
+                # Append kwargs with data
+                url_kwargs = {
+                    **kwargs,
+                    **{
+                        'coordinates': data[0],
+                        'timestamps': data[1],
+                        'radiuses': data[2],
+                        'waypoints': data[3]
+                    }
                 }
-                return self.match_url(**kwargs)
+                return self.match_url(**url_kwargs)
 
             urls = [generate_urls(data) for data in split_data]
 
@@ -131,40 +141,22 @@ class BulkQueries(URLQueries):
 
         else:
             # Map match the entire dataframe in single request
-            kwargs = {
-                'coordinates': df[['lat', 'lon']].values,
-                'timestamps': df.timestamp.to_numpy(),
-                'host': self.host,
-                'port': self.port,
-                'mode': mode,
-                'geometries': geometries,
-                'annotations': annotations,
-                'radiuses': df.radius.to_numpy(),
-                'gaps': gaps,
-                'tidy': tidy,
-                'steps': steps,
-                'waypoints': df.waypoint.to_numpy(),
-                'dt_format': dt_format
+            url_kwargs = {
+                **kwargs,
+                **{
+                    'coordinates': df[['lat', 'lon']].values,
+                    'timestamps': df.timestamp.to_numpy(),
+                    'radiuses': df.radius.to_numpy(),
+                    'waypoints': df.waypoint.to_numpy()
+                }
             }
-            url = self.match_url(**kwargs)
+
+            url = self.match_url(**url_kwargs)
             results = requests.get(url, timeout=5).json()
 
-        assert isinstance(results, dict), 'results must be a dictionary'
+        assert isinstance(results, list), 'results must be a dictionary'
+
+        # TODO: Need to extract the results from the response
+        # Create a function to do this.
 
         return results
-
-
-if __name__ == '__main__':
-    LOC_PATH = (
-        'C:/Users/nick.fournier/OneDrive - Resource Systems Group, Inc/Desktop/'
-        'sample_locations.csv'
-    )
-    locations = pd.read_csv(LOC_PATH)
-
-    bulky = BulkQueries()
-    bulky.host = '192.168.1.126'
-    bulky.port = 5000
-
-    bulky.match_df(
-        locations, mode='drive', group_col='trip_id', renames={'collect_time': 'timestamp'}
-    )

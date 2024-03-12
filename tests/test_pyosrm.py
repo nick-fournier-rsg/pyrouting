@@ -4,7 +4,7 @@ This is a test module for the PyOSRM class.
 
 import pytest
 import pandas as pd
-from pyosrm import PyOSRM
+from pyrouting.main.osrm import PyOSRM
 
 
 coords = [
@@ -89,13 +89,13 @@ def test_df_matching(df):
         'group_col': 'trip_id',
         'renames': {'collect_time': 'timestamp'}
     }
-    response = PYOSRM.match_df(**kwargs)
+    responses = PYOSRM.match_df(**kwargs)
 
-    assert response['code'] == 'Ok'
+    assert responses[0]['code'] == 'Ok'
 
 
 if __name__ == '__main__':
-    test_df_matching(locations)
+    # test_df_matching(locations)
     test_table_service(coords, 'driving')
     test_match_service(coords, 'driving', times, 'polyline')
     test_route_service([coords[0], coords[-1]], 'driving', geometries='polyline')
