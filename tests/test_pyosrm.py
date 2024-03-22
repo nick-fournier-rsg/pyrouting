@@ -4,8 +4,8 @@ This is a test module for the PyOSRM class.
 
 import pytest
 import pandas as pd
-from pyrouting.main.osrm import PyOSRM
-
+from pyrouting.osrm import OSRMQueries
+from pyrouting import utils
 
 coords = [
     (47.66117, -122.31197),
@@ -27,8 +27,8 @@ locations = pd.read_csv('tests/sample_locations.csv')
 
 
 # Create a PyOSRM object
-PYOSRM = PyOSRM(host='192.168.1.126')
-HOST_ALIVE = PYOSRM.testhost()
+PYOSRM = OSRMQueries(host='192.168.1.126', port=5000)
+HOST_ALIVE = utils.testhost(PYOSRM.host, PYOSRM.port)
 
 
 @pytest.mark.skipif(not HOST_ALIVE, reason="Host is not reachable")
@@ -53,12 +53,7 @@ def test_match_service(coordinates, mode, timestamps, geometries):
     This function tests the match service of the PyOSRM class.
     """
 
-    response = PYOSRM.match(
-        coordinates=coordinates,
-        timestamps=timestamps,
-        mode=mode,
-        geometries=geometries
-    )
+    response = PYOSRM.match(coordinates, timestamps, mode, geometries)
 
     assert response['code'] == 'Ok'
 
@@ -84,18 +79,20 @@ def test_df_matching(df):
     This function tests the bulk matching service of the PyOSRM class.
     """
     kwargs = {
-        'df': df,
         'mode': 'driving',
         'group_col': 'trip_id',
-        'renames': {'collect_time': 'timestamp'}
+        'renames': {'collect_time': 'timestamp'},
+        'geometries': 'polyline6',
+        'unpack': ['geometry', 'confidence', 'distance', 'duration', 'waypoints']
     }
-    responses = PYOSRM.match_df(**kwargs)
+    response_df = PYOSRM.match_df(df, **kwargs)
 
-    assert responses[0]['code'] == 'Ok'
+    assert isinstance(response_df, pd.DataFrame)
+    assert response_df.geometry.notnull().any()
 
 
 if __name__ == '__main__':
-    # test_df_matching(locations)
+    test_df_matching(locations.iloc[:10000])
     test_table_service(coords, 'driving')
-    test_match_service(coords, 'driving', times, 'polyline')
-    test_route_service([coords[0], coords[-1]], 'driving', geometries='polyline')
+    test_match_service(coords, 'driving', times, 'polyline6')
+    test_route_service([coords[0], coords[-1]], 'driving', geometries='polyline6')

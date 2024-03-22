@@ -2,6 +2,7 @@
 This module contains the ConcurrentRequests class,
 which is used to make concurrent requests to the OSRM server.
 """
+from typing import Iterator
 import json
 import asyncio
 import aiohttp
@@ -56,7 +57,7 @@ class ConcurrentRequests:
         """
         self.connector.close()
 
-    async def async_gather(self, urls: list[str]) -> list:
+    async def async_gather(self, urls: list[str] | Iterator) -> list:
         """
         This is a helper function to make concurrent GET requests to the OSRM server.
 
@@ -84,14 +85,14 @@ class ConcurrentRequests:
 
         # async gather with tqdm progress bar
         await tqdm_asyncio.gather(*(get(url) for url in urls))
-        # await asyncio.gather(*(get(url) for url in urls))
+
         await session.close()
 
         return results
 
     def get(
         self,
-        urls: list[str],
+        urls: list[str] | Iterator,
         keep_open: bool = False
     ):
         """

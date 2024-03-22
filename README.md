@@ -1,4 +1,4 @@
-Documentation location at: https://nick-fournier-rsg.github.io/pyosrm/
+Documentation location at: https://nick-fournier-rsg.github.io/pyrouting/
 
 
 You must have an OSRM server running somewhere to use this package. You can run your own server or use a public one. The public ones are not recommended for production use.

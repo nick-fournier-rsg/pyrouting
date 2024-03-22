@@ -1,9 +1,9 @@
-.. pyosrm documentation master file, created by
+.. pyrouting documentation master file, created by
    sphinx-quickstart on Wed Mar  6 16:33:37 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to pyosrm's documentation!
+Welcome to pyrouting's documentation!
 ==================================
 
 .. toctree::
